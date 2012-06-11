@@ -7,14 +7,21 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sortBy = params[:sortBy].to_s
-    if (sortBy.empty?)
-      @movies = Movie.all
-    else
-      @movies = Movie.order(sortBy.to_s + " asc").all #sort ascending for now
+    sort_by = params[:sort_by].to_s
+    ratings = params[:ratings]  #an array of ratings
+    query = Movie
+    if (!sort_by.empty?)
+      query = Movie.order(sort_by + " asc")
     end
-    @class_title = "title".eql?(sortBy) ? "hilite" : nil
-    @class_release_date = "release_date".eql?(sortBy) ? "hilite" : nil
+    if (!ratings.nil?)
+      in_clause = ratings.keys.map{|e| e.to_s }
+      query = query.where("rating in (?)", in_clause)
+    end
+    @movies = query.all
+    @class_title = "title".eql?(sort_by) ? "hilite" : nil
+    @class_release_date = "release_date".eql?(sort_by) ? "hilite" : nil
+    @all_ratings = Movie.all_ratings
+    @selected_ratings = ratings.nil? ? {} : ratings
   end
 
   def new
