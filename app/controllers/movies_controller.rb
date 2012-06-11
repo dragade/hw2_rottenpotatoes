@@ -7,13 +7,26 @@ class MoviesController < ApplicationController
   end
 
   def index
+    if ((params[:sort_by].to_s.empty? && params[:ratings].nil?) &&
+        !params.key?(:commit) &&
+        (!session[:sort_by].to_s.empty? || !session[:ratings].nil?))
+      flash.keep
+      redirect_to :action => :index, :sort_by => session[:sort_by], :ratings => session[:ratings]
+    else
+      original_index
+    end
+  end
+
+  def original_index
     sort_by = params[:sort_by].to_s
     ratings = params[:ratings]  #an array of ratings
     query = Movie
     if (!sort_by.empty?)
+      session[:sort_by] = sort_by
       query = Movie.order(sort_by + " asc")
     end
     if (!ratings.nil?)
+      session[:ratings] = ratings
       in_clause = ratings.keys.map{|e| e.to_s }
       query = query.where("rating in (?)", in_clause)
     end
