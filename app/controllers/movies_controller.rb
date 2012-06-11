@@ -7,18 +7,14 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sortBy = params[:sortBy]
-    if (sortBy.nil?)
+    sortBy = params[:sortBy].to_s
+    if (sortBy.empty?)
       @movies = Movie.all
     else
-      @movies = Movie.order(sortBy.to_s + " asc") #always sort ascending for now
-      if "title".eql?(sortBy.to_s)
-        @class_title = "hilite"
-      end
-      if "release_date".eql?(sortBy.to_s)
-        @class_release_date = "hilite"
-      end
+      @movies = Movie.order(sortBy.to_s + " asc").all #sort ascending for now
     end
+    @class_title = "title".eql?(sortBy) ? "hilite" : nil
+    @class_release_date = "release_date".eql?(sortBy) ? "hilite" : nil
   end
 
   def new
